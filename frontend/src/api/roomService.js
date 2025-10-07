@@ -1,7 +1,7 @@
 import axios from 'axios';
 
 const roomAxiosInstance = axios.create({
-  baseURL: 'http://localhost:8004',
+  baseURL: 'https://pg-application-room-service.onrender.com',
   timeout: 10000,
 });
 
@@ -29,7 +29,7 @@ roomAxiosInstance.interceptors.response.use(
       try {
         const refreshToken = localStorage.getItem('refresh_token');
         if (refreshToken) {
-          const response = await axios.post('http://localhost:8000/refresh-token', {
+          const response = await axios.post('https://pg-application-auth-service.onrender.com/refresh-token', {
             refresh_token: refreshToken
           });
 
