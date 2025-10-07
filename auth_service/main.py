@@ -27,12 +27,20 @@ app = FastAPI(title="Auth Service")
 app.include_router(router)
 
 # Middleware
+origins = [
+    "https://pg-application-frontend.onrender.com",
+    "http://localhost:3000",  # For local development
+]
+
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],
+    #allow_origins=["*"],
+    allow_origins= origins,
     allow_credentials=True,
-    allow_methods=["*"],
+    #allow_methods=["*"],
+    allow_methods=["GET", "POST", "PUT", "DELETE", "OPTIONS", "PATCH"],
     allow_headers=["*"],
+    expose_headers=["*"]
 )
 app.add_middleware(SlowAPIMiddleware)
 # Register limiter with app state
