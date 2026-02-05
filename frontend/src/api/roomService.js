@@ -163,7 +163,7 @@ const roomService = {
   sendBulkPaymentNotifications: async (paymentType = null) => {
     const response = await roomAxiosInstance.post('/payments/send-notifications', {
       payment_type: paymentType
-    });
+    },{ timeout: 120000 }); // 2 minutes
     return response.data;
   },
 
@@ -173,11 +173,11 @@ const roomService = {
     });
     return response.data;
   },
-
+  
   sendMonthlyRentReminders: async (paymentType = null) => {
     const response = await roomAxiosInstance.post('/payments/send-monthly-reminders', {
       payment_type: paymentType
-    });
+    },{ timeout: 120000 }); // 2 minutes
     return response.data;
   },
 
