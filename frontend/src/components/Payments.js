@@ -176,7 +176,11 @@ const Payments = () => {
       const result = await roomService.sendBulkPaymentNotifications();
       showNotificationMessage(`Notifications sent successfully. Sent: ${result.sent_count}, Failed: ${result.failed_count}`, 'success');
     } catch (err) {
-      showNotificationMessage('Failed to send notifications', 'error');
+      // showNotificationMessage('Failed to send notifications', 'error');
+      // Surface backend error details when available to help debugging
+      console.error('Send notifications error:', err);
+      const serverMessage = err?.response?.data?.detail || err?.response?.data?.message || err?.message || 'Failed to send notifications';
+      showNotificationMessage(serverMessage, 'error');
     }
   };
 
