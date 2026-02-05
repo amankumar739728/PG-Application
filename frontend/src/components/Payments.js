@@ -414,8 +414,10 @@ const Payments = () => {
       <div className="space-y-1 text-sm">
         <p><strong>Room:</strong> {guest.room_number}</p>
         <p><strong>Email:</strong> {guest.guest_email}</p>
-        <p><strong>Phone:</strong> {guest.phone}</p>
-        <p><strong>Monthly Rent:</strong> ₹{guest.monthly_rent}</p>
+        <p><strong>Phone:</strong> {guest.guest_phone}</p>
+        <p><strong>Monthly_Rent:</strong> ₹{guest.rent_amount}</p>
+        <p><strong>Payment_Month:</strong> ₹{guest.payment_month}</p>
+        <p><strong>Payment_Year:</strong> ₹{guest.payment_year}</p>
       </div>
     </div>
   );
