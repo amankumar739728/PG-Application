@@ -18,6 +18,7 @@ import jwt
 from jwt import ExpiredSignatureError, InvalidTokenError
 import logging
 from fastapi.middleware.cors import CORSMiddleware
+from threading import Thread
 
 # Configure logging
 logging.basicConfig(level=logging.INFO)
@@ -571,22 +572,45 @@ def export_payments_pdf_endpoint(
         logging.error(f"Error exporting payments to PDF: {e}")
         raise HTTPException(status_code=500, detail="Internal server error")
     
+# @app.post("/payments/send-notifications", response_model=dict, tags=["Payment"])
+# def send_bulk_notifications_endpoint(
+#     user: dict = Depends(require_role(ADMIN_ROLES))
+# ):
+#     """Send bulk payment notifications to all guests (Admin only)"""
+#     try:
+#         result = send_bulk_payment_notifications()
+#         return {
+#             "message": f"Notifications sent successfully. Sent: {result['sent']}, Failed: {result['failed']}",
+#             "sent_count": result["sent"],
+#             "failed_count": result["failed"]
+#         }
+#     except Exception as e:
+#         import logging
+#         logging.error(f"Error sending bulk notifications: {e}")
+#         raise HTTPException(status_code=500, detail="Internal server error")
+
+
+#New code:
 @app.post("/payments/send-notifications", response_model=dict, tags=["Payment"])
 def send_bulk_notifications_endpoint(
     user: dict = Depends(require_role(ADMIN_ROLES))
 ):
-    """Send bulk payment notifications to all guests (Admin only)"""
-    try:
-        result = send_bulk_payment_notifications()
-        return {
-            "message": f"Notifications sent successfully. Sent: {result['sent']}, Failed: {result['failed']}",
-            "sent_count": result["sent"],
-            "failed_count": result["failed"]
-        }
-    except Exception as e:
-        import logging
-        logging.error(f"Error sending bulk notifications: {e}")
-        raise HTTPException(status_code=500, detail="Internal server error")
+    """Send bulk payment notifications to all guests asynchronously (Admin only)"""
+    def send_notifications_background():
+        try:
+            result = send_bulk_payment_notifications()
+            logger.info(f"Bulk notifications completed: Sent {result['sent']}, Failed {result['failed']}")
+        except Exception as e:
+            logger.error(f"Error sending bulk notifications in background: {e}", exc_info=True)
+    
+    # Spawn background thread and return immediately
+    thread = Thread(target=send_notifications_background, daemon=True)
+    thread.start()
+    
+    return {
+        "message": "Notifications are being sent in the background. You will receive updates shortly.",
+        "status": "processing"
+    }
 
 # Monthly Rent Reminder Endpoints
 @app.get("/payments/monthly-pending", response_model=List[dict], tags=["Payment"])
@@ -602,23 +626,50 @@ def get_guests_with_pending_monthly_payments_endpoint(
         logging.error(f"Error getting guests with pending monthly payments: {e}")
         raise HTTPException(status_code=500, detail="Internal server error")
 
+# @app.post("/payments/send-monthly-reminders", response_model=dict, tags=["Payment"])
+# def send_monthly_rent_reminders_endpoint(
+#     user: dict = Depends(require_role(ADMIN_ROLES))
+# ):
+#     """Send monthly rent reminders to all guests who haven't paid for the current month (Admin only)"""
+#     try:
+#         result = send_monthly_rent_reminders()
+#         return {
+#             "message": f"Monthly reminders sent successfully. Sent: {result.get('sent', 0)}, Failed: {result.get('failed', 0)}",
+#             "sent_count": result.get("sent", 0),
+#             "failed_count": result.get("failed", 0),
+#             "skipped": result.get("skipped", False)
+#         }
+#     except Exception as e:
+#         import logging
+#         logging.error(f"Error sending monthly rent reminders: {e}")
+#         raise HTTPException(status_code=500, detail="Internal server error")
+
+
+#New code:
+
 @app.post("/payments/send-monthly-reminders", response_model=dict, tags=["Payment"])
 def send_monthly_rent_reminders_endpoint(
     user: dict = Depends(require_role(ADMIN_ROLES))
 ):
-    """Send monthly rent reminders to all guests who haven't paid for the current month (Admin only)"""
-    try:
-        result = send_monthly_rent_reminders()
-        return {
-            "message": f"Monthly reminders sent successfully. Sent: {result.get('sent', 0)}, Failed: {result.get('failed', 0)}",
-            "sent_count": result.get("sent", 0),
-            "failed_count": result.get("failed", 0),
-            "skipped": result.get("skipped", False)
-        }
-    except Exception as e:
-        import logging
-        logging.error(f"Error sending monthly rent reminders: {e}")
-        raise HTTPException(status_code=500, detail="Internal server error")
+    """Send monthly rent reminders asynchronously to all guests who haven't paid for the current month (Admin only)"""
+    def send_reminders_background():
+        try:
+            result = send_monthly_rent_reminders()
+            if result.get("skipped"):
+                logger.info("Monthly reminders skipped: not the 5th of the month")
+            else:
+                logger.info(f"Monthly reminders completed: Sent {result.get('sent', 0)}, Failed {result.get('failed', 0)}")
+        except Exception as e:
+            logger.error(f"Error sending monthly reminders in background: {e}", exc_info=True)
+    
+    # Spawn background thread and return immediately
+    thread = Thread(target=send_reminders_background, daemon=True)
+    thread.start()
+    
+    return {
+        "message": "Monthly reminders are being sent in the background. You will receive updates shortly.",
+        "status": "processing"
+    }
 
 # Activity Tracking Endpoints
 @app.get("/activities/recent", response_model=List[dict], tags=["Activity"])
