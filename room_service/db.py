@@ -1990,16 +1990,62 @@ This is an automated monthly reminder. Please do not reply to this email.
         print(f"Error sending monthly reminder email: {e}")
         return False
 
-def send_monthly_rent_reminders():
+# def send_monthly_rent_reminders():
+#     """
+#     Send monthly rent reminders to all guests who haven't paid for the current month
+#     This function should be called on the 5th of each month
+#     """
+#     current_date = datetime.datetime.utcnow()
+
+#     # Check if today is the 5th of the month
+#     if current_date.day != 5:
+#         print(f"Today is not the 5th of the month (it's {current_date.day}). Skipping monthly reminders.")
+#         return {"sent": 0, "failed": 0, "skipped": True}
+
+#     # Get guests with pending payments for current month
+#     pending_guests = get_guests_with_pending_monthly_payments()
+
+#     sent_count = 0
+#     failed_count = 0
+
+#     print(f"Sending monthly reminders to {len(pending_guests)} guests...")
+
+#     for guest in pending_guests:
+#         guest_email = guest.get("guest_email")
+
+#         if guest_email:
+#             success = send_monthly_rent_reminder_email(
+#                 guest_email,
+#                 guest["guest_name"],
+#                 guest["room_number"],
+#                 guest
+#             )
+#             if success:
+#                 sent_count += 1
+#                 print(f"✓ Sent reminder to {guest['guest_name']} ({guest_email})")
+#             else:
+#                 failed_count += 1
+#                 print(f"✗ Failed to send reminder to {guest['guest_name']} ({guest_email})")
+#         else:
+#             failed_count += 1
+#             print(f"✗ No email found for {guest['guest_name']}")
+
+#     print(f"Monthly reminders completed: {sent_count} sent, {failed_count} failed")
+#     return {"sent": sent_count, "failed": failed_count, "skipped": False}
+
+
+def send_monthly_rent_reminders(force: bool = False):
     """
     Send monthly rent reminders to all guests who haven't paid for the current month
-    This function should be called on the 5th of each month
+    This function should be called on the 5th of each month.
+    Parameters:
+    - force: If True, bypass the day 5 check (useful for testing)
     """
     current_date = datetime.datetime.utcnow()
 
-    # Check if today is the 5th of the month
-    if current_date.day != 5:
-        print(f"Today is not the 5th of the month (it's {current_date.day}). Skipping monthly reminders.")
+    # Check if today is the 5th of the month (skip if force=True)
+    if not force and current_date.day != 5:
+        print(f"Today is not the 5th of the month (it's {current_date.day}). Skipping monthly reminders. Use force=True to override.")
         return {"sent": 0, "failed": 0, "skipped": True}
 
     # Get guests with pending payments for current month
@@ -2032,6 +2078,7 @@ def send_monthly_rent_reminders():
 
     print(f"Monthly reminders completed: {sent_count} sent, {failed_count} failed")
     return {"sent": sent_count, "failed": failed_count, "skipped": False}
+
 
 
 # Activity Tracking Functions
