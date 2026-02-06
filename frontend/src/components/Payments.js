@@ -206,9 +206,17 @@ const Payments = () => {
   const handleSendNotifications = async () => {
     try {
       const result = await roomService.sendBulkPaymentNotifications();
-      showNotificationMessage(`Notifications sent successfully. Sent: ${result.sent_count}, Failed: ${result.failed_count}`, 'success');
+      // Handle both response formats: async (status/message) and sync (sent_count/failed_count)
+      if (result.status === 'processing') {
+        showNotificationMessage(result.message, 'success');
+      } else {
+        showNotificationMessage(`Notifications sent successfully. Sent: ${result.sent_count}, Failed: ${result.failed_count}`, 'success');
+      }
     } catch (err) {
-      showNotificationMessage('Failed to send notifications', 'error');
+      console.error('Send notifications error:', err);
+      const serverMessage = err?.response?.data?.detail || err?.response?.data?.message || err?.message || 'Failed to send notifications';
+      showNotificationMessage(serverMessage, 'error');
+      // showNotificationMessage('Failed to send notifications', 'error');
     }
   };
 
