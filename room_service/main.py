@@ -1,6 +1,16 @@
 from fastapi import FastAPI, HTTPException, Depends, Query,Response
 from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
-from db import (
+# from db import (
+#     get_room, get_all_rooms, get_room_by_id, create_room, update_room, delete_room,
+#     get_rooms_by_type, get_available_rooms, get_occupied_rooms, get_rooms_by_status,
+#     add_guest_to_room, remove_guest_from_room, update_guest_details, add_rent_payment,
+#     get_rooms_with_filters, get_room_statistics, get_payment_details,
+#     get_overdue_payments, get_payment_analytics, export_payments_csv,
+#     export_payments_pdf, get_payment_notifications, send_bulk_payment_notifications,
+#     get_guests_with_pending_monthly_payments, send_monthly_rent_reminders,
+#     get_recent_activities
+# )
+from db_sendgrid import (
     get_room, get_all_rooms, get_room_by_id, create_room, update_room, delete_room,
     get_rooms_by_type, get_available_rooms, get_occupied_rooms, get_rooms_by_status,
     add_guest_to_room, remove_guest_from_room, update_guest_details, add_rent_payment,
