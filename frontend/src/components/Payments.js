@@ -171,27 +171,58 @@ const Payments = () => {
     setFilteredPayments([...payments]);
   };
 
+  // const handleSendNotifications = async () => {
+  //   try {
+  //     const result = await roomService.sendBulkPaymentNotifications();
+  //     showNotificationMessage(`Notifications sent successfully. Sent: ${result.sent_count}, Failed: ${result.failed_count}`, 'success');
+  //   } catch (err) {
+  //     // showNotificationMessage('Failed to send notifications', 'error');
+  //     // Surface backend error details when available to help debugging
+  //     console.error('Send notifications error:', err);
+  //     const serverMessage = err?.response?.data?.detail || err?.response?.data?.message || err?.message || 'Failed to send notifications';
+  //     showNotificationMessage(serverMessage, 'error');
+  //   }
+  // };
+
+
   const handleSendNotifications = async () => {
-    try {
-      const result = await roomService.sendBulkPaymentNotifications();
-      showNotificationMessage(`Notifications sent successfully. Sent: ${result.sent_count}, Failed: ${result.failed_count}`, 'success');
-    } catch (err) {
-      // showNotificationMessage('Failed to send notifications', 'error');
-      // Surface backend error details when available to help debugging
-      console.error('Send notifications error:', err);
-      const serverMessage = err?.response?.data?.detail || err?.response?.data?.message || err?.message || 'Failed to send notifications';
-      showNotificationMessage(serverMessage, 'error');
+  try {
+    const result = await roomService.sendBulkPaymentNotifications();
+    if (result.status === 'processing') {
+      showNotificationMessage('Notifications are being sent in the background. Check back in a moment.', 'success');
+    } else {
+      showNotificationMessage(`Notifications sent. Sent: ${result.sent_count}, Failed: ${result.failed_count}`, 'success');
     }
-  };
+  } catch (err) {
+    console.error('Send notifications error:', err);
+    const serverMessage = err?.response?.data?.detail || err?.response?.data?.message || err?.message || 'Failed to send notifications';
+    showNotificationMessage(serverMessage, 'error');
+  }
+};
+
+  // const handleSendMonthlyReminders = async () => {
+  //   try {
+  //     const result = await roomService.sendMonthlyRentReminders();
+  //     showNotificationMessage(`Monthly reminders sent successfully. Sent: ${result.sent_count}, Failed: ${result.failed_count}`, 'success');
+  //   } catch (err) {
+  //     showNotificationMessage('Failed to send monthly reminders', 'error');
+  //   }
+  // };
 
   const handleSendMonthlyReminders = async () => {
-    try {
-      const result = await roomService.sendMonthlyRentReminders();
-      showNotificationMessage(`Monthly reminders sent successfully. Sent: ${result.sent_count}, Failed: ${result.failed_count}`, 'success');
-    } catch (err) {
-      showNotificationMessage('Failed to send monthly reminders', 'error');
+  try {
+    const result = await roomService.sendMonthlyRentReminders();
+    if (result.status === 'processing') {
+      showNotificationMessage('Monthly reminders are being sent in the background. Check back in a moment.', 'success');
+    } else {
+      showNotificationMessage(`Monthly reminders sent. Sent: ${result.sent_count}, Failed: ${result.failed_count}`, 'success');
     }
-  };
+  } catch (err) {
+    console.error('Send monthly reminders error:', err);
+    const serverMessage = err?.response?.data?.detail || err?.response?.data?.message || err?.message || 'Failed to send monthly reminders';
+    showNotificationMessage(serverMessage, 'error');
+  }
+};
 
   const handleExportCSV = async () => {
     try {
