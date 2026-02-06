@@ -647,29 +647,56 @@ def get_guests_with_pending_monthly_payments_endpoint(
 
 #New code:
 
+# @app.post("/payments/send-monthly-reminders", response_model=dict, tags=["Payment"])
+# def send_monthly_rent_reminders_endpoint(
+#     user: dict = Depends(require_role(ADMIN_ROLES))
+# ):
+#     """Send monthly rent reminders asynchronously to all guests who haven't paid for the current month (Admin only)"""
+#     def send_reminders_background():
+#         try:
+#             result = send_monthly_rent_reminders()
+#             if result.get("skipped"):
+#                 logger.info("Monthly reminders skipped: not the 5th of the month")
+#             else:
+#                 logger.info(f"Monthly reminders completed: Sent {result.get('sent', 0)}, Failed {result.get('failed', 0)}")
+#         except Exception as e:
+#             logger.error(f"Error sending monthly reminders in background: {e}", exc_info=True)
+    
+#     # Spawn background thread and return immediately
+#     thread = Thread(target=send_reminders_background, daemon=True)
+#     thread.start()
+    
+#     return {
+#         "message": "Monthly reminders are being sent in the background. You will receive updates shortly.",
+#         "status": "processing"
+#     }
+
+
+
 @app.post("/payments/send-monthly-reminders", response_model=dict, tags=["Payment"])
 def send_monthly_rent_reminders_endpoint(
-    user: dict = Depends(require_role(ADMIN_ROLES))
+    user: dict = Depends(require_role(ADMIN_ROLES)),
+    force: bool = Query(False, description="Force send reminders even if not the 5th of the month (for testing)")
 ):
-    """Send monthly rent reminders asynchronously to all guests who haven't paid for the current month (Admin only)"""
-    def send_reminders_background():
-        try:
-            result = send_monthly_rent_reminders()
-            if result.get("skipped"):
-                logger.info("Monthly reminders skipped: not the 5th of the month")
-            else:
-                logger.info(f"Monthly reminders completed: Sent {result.get('sent', 0)}, Failed {result.get('failed', 0)}")
-        except Exception as e:
-            logger.error(f"Error sending monthly reminders in background: {e}", exc_info=True)
+    """Send monthly rent reminders to all guests who haven't paid for the current month (Admin only)
     
-    # Spawn background thread and return immediately
-    thread = Thread(target=send_reminders_background, daemon=True)
-    thread.start()
-    
-    return {
-        "message": "Monthly reminders are being sent in the background. You will receive updates shortly.",
-        "status": "processing"
-    }
+    Query Parameters:
+    - force: Set to true to send reminders regardless of the date (useful for testing)
+      Example: /payments/send-monthly-reminders?force=true
+    """
+    try:
+        result = send_monthly_rent_reminders(force=force)
+        return {
+            "message": f"Monthly reminders sent successfully. Sent: {result.get('sent', 0)}, Failed: {result.get('failed', 0)}",
+            "sent_count": result.get("sent", 0),
+            "failed_count": result.get("failed", 0),
+            "skipped": result.get("skipped", False)
+        }
+    except Exception as e:
+        import logging
+        logging.error(f"Error sending monthly rent reminders: {e}")
+        raise HTTPException(status_code=500, detail="Internal server error")
+
 
 # Activity Tracking Endpoints
 @app.get("/activities/recent", response_model=List[dict], tags=["Activity"])
