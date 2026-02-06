@@ -63,6 +63,8 @@ const Payments = () => {
   const [showNotification, setShowNotification] = useState(false);
   const [notificationMessage, setNotificationMessage] = useState('');
   const [notificationType, setNotificationType] = useState('success');
+  // Force send monthly reminders (for testing)
+  const [forceMonthlyReminders, setForceMonthlyReminders] = useState(false);
 
   useEffect(() => {
     fetchData();
@@ -185,20 +187,30 @@ const Payments = () => {
   // };
 
 
+//   const handleSendNotifications = async () => {
+//   try {
+//     const result = await roomService.sendBulkPaymentNotifications();
+//     if (result.status === 'processing') {
+//       showNotificationMessage('Notifications are being sent in the background. Check back in a moment.', 'success');
+//     } else {
+//       showNotificationMessage(`Notifications sent. Sent: ${result.sent_count}, Failed: ${result.failed_count}`, 'success');
+//     }
+//   } catch (err) {
+//     console.error('Send notifications error:', err);
+//     const serverMessage = err?.response?.data?.detail || err?.response?.data?.message || err?.message || 'Failed to send notifications';
+//     showNotificationMessage(serverMessage, 'error');
+//   }
+// };
+
+
   const handleSendNotifications = async () => {
-  try {
-    const result = await roomService.sendBulkPaymentNotifications();
-    if (result.status === 'processing') {
-      showNotificationMessage('Notifications are being sent in the background. Check back in a moment.', 'success');
-    } else {
-      showNotificationMessage(`Notifications sent. Sent: ${result.sent_count}, Failed: ${result.failed_count}`, 'success');
+    try {
+      const result = await roomService.sendBulkPaymentNotifications();
+      showNotificationMessage(`Notifications sent successfully. Sent: ${result.sent_count}, Failed: ${result.failed_count}`, 'success');
+    } catch (err) {
+      showNotificationMessage('Failed to send notifications', 'error');
     }
-  } catch (err) {
-    console.error('Send notifications error:', err);
-    const serverMessage = err?.response?.data?.detail || err?.response?.data?.message || err?.message || 'Failed to send notifications';
-    showNotificationMessage(serverMessage, 'error');
-  }
-};
+  };
 
   // const handleSendMonthlyReminders = async () => {
   //   try {
@@ -209,20 +221,30 @@ const Payments = () => {
   //   }
   // };
 
+//   const handleSendMonthlyReminders = async () => {
+//   try {
+//     const result = await roomService.sendMonthlyRentReminders();
+//     if (result.status === 'processing') {
+//       showNotificationMessage('Monthly reminders are being sent in the background. Check back in a moment.', 'success');
+//     } else {
+//       showNotificationMessage(`Monthly reminders sent. Sent: ${result.sent_count}, Failed: ${result.failed_count}`, 'success');
+//     }
+//   } catch (err) {
+//     console.error('Send monthly reminders error:', err);
+//     const serverMessage = err?.response?.data?.detail || err?.response?.data?.message || err?.message || 'Failed to send monthly reminders';
+//     showNotificationMessage(serverMessage, 'error');
+//   }
+// };
+
+
   const handleSendMonthlyReminders = async () => {
-  try {
-    const result = await roomService.sendMonthlyRentReminders();
-    if (result.status === 'processing') {
-      showNotificationMessage('Monthly reminders are being sent in the background. Check back in a moment.', 'success');
-    } else {
-      showNotificationMessage(`Monthly reminders sent. Sent: ${result.sent_count}, Failed: ${result.failed_count}`, 'success');
+    try {
+      const result = await roomService.sendMonthlyRentReminders(null, forceMonthlyReminders);
+      showNotificationMessage(`Monthly reminders sent successfully. Sent: ${result.sent_count}, Failed: ${result.failed_count}`, 'success');
+    } catch (err) {
+      showNotificationMessage('Failed to send monthly reminders', 'error');
     }
-  } catch (err) {
-    console.error('Send monthly reminders error:', err);
-    const serverMessage = err?.response?.data?.detail || err?.response?.data?.message || err?.message || 'Failed to send monthly reminders';
-    showNotificationMessage(serverMessage, 'error');
-  }
-};
+  };
 
   const handleExportCSV = async () => {
     try {
@@ -754,12 +776,25 @@ const Payments = () => {
                 </button>
               )}
               {activeTab === 'pending' && (
+                <div className="flex items-center space-x-4">
                 <button
                   onClick={handleSendMonthlyReminders}
                   className="bg-purple-600 text-white px-4 py-2 rounded hover:bg-purple-700 transition"
                 >
                   Send Monthly Reminders
                 </button>
+               <label className="flex items-center space-x-2 text-sm">
+                    <input
+                      type="checkbox"
+                      checked={forceMonthlyReminders}
+                      onChange={(e) => setForceMonthlyReminders(e.target.checked)}
+                      className="w-4 h-4 rounded cursor-pointer"
+                    />
+                    <span className={isDarkMode ? 'text-gray-300' : 'text-gray-700'}>
+                      Force Send (ignore date check)
+                    </span>
+                  </label>
+                </div>
               )}
             </div>
           </div>
