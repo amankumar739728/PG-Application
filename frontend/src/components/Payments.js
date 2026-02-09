@@ -1065,104 +1065,130 @@ const Payments = () => {
                 >
                   {selectedAmount || customAmount ? `Pay ₹${(selectedAmount || customAmount).toLocaleString()}` : 'Select Amount to Continue'}
                 </button>
-
                 {/* QR Code Modal */}
                 {showQRCode && (
-                  <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-                    <div className={`relative max-w-md w-full ${isDarkMode ? 'bg-gray-800' : 'bg-white'} rounded-2xl shadow-2xl p-6 max-h-[90vh] overflow-y-auto`}>
-                      {/* Close Button */}
-                      <button
-                        onClick={() => setShowQRCode(false)}
-                        className="absolute top-4 right-4 text-gray-400 hover:text-gray-600 transition-colors"
-                      >
-                        <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-                        </svg>
-                      </button>
-
-                      <div className="text-center">
-                        <div className="w-16 h-16 bg-gradient-to-r from-green-500 to-blue-500 rounded-full flex items-center justify-center mx-auto mb-4">
-                          <svg className="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+                      <div className={`relative w-full max-w-lg ${isDarkMode ? 'bg-gray-800' : 'bg-white'} rounded-2xl shadow-2xl p-6 max-h-[90vh] overflow-y-auto`}>
+                        {/* Close Button */}
+                        <button
+                          onClick={() => {
+                            setShowQRCode(false);
+                            setQrData(null); // Clear QR data when closing
+                          }}
+                          className="absolute top-4 right-4 text-gray-400 hover:text-gray-600 transition-colors z-10"
+                        >
+                          <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
                           </svg>
-                        </div>
-
-                        <h3 className="text-xl font-bold mb-2">Scan to Pay</h3>
-                        <p className={`text-sm mb-6 ${isDarkMode ? 'text-gray-300' : 'text-gray-600'}`}>
-                          Amount: ₹{(selectedAmount || customAmount).toLocaleString()}
-                        </p>
-
-                        {/* QR Code Display */}
-                        <div className={`w-64 h-64 mx-auto mb-6 border-4 rounded-lg flex items-center justify-center ${
-                          isDarkMode ? 'border-gray-600 bg-gray-700' : 'border-gray-200 bg-gray-50'
-                        }`}>
-                          {qrData?.upi_string ? (
-                            <div className="text-center">
-                              {/* QR Code using external service or library */}
-                              <img
-                                src={`https://api.qrserver.com/v1/create-qr-code/?size=256x256&data=${encodeURIComponent(qrData.upi_string)}`}
-                                alt="Payment QR Code"
-                                className="w-48 h-48 mx-auto mb-4 rounded-lg"
-                              />
-                              <p className={`text-sm font-medium ${isDarkMode ? 'text-gray-300' : 'text-gray-600'}`}>
-                                Scan QR Code
-                              </p>
-                              <p className={`text-xs ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}>
-                                {qrData.merchant_name}
-                              </p>
-                            </div>
-                          ) : (
-                            <div className="text-center">
-                              <div className="w-32 h-32 bg-white border-2 border-gray-300 rounded-lg mx-auto mb-4 flex items-center justify-center">
-                                <svg className="w-16 h-16 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v1m6 11h2m-6 0h-2v4m0-11v3m0 0h.01M12 12h4.01M12 15h4.01M12 21h4.01M12 12v.01M12 15v.01M12 18v.01M12 21v.01M8 12h.01M8 15h.01M8 18h.01M8 21h.01M4 12h.01M4 15h.01M4 18h.01M4 21h.01" />
-                                </svg>
-                              </div>
-                              <p className={`text-sm font-medium ${isDarkMode ? 'text-gray-300' : 'text-gray-600'}`}>
-                                Generating QR Code...
-                              </p>
-                            </div>
-                          )}
-                       </div>
-
-                        <div className={`p-4 rounded-lg mb-4 ${isDarkMode ? 'bg-gray-700' : 'bg-blue-50'}`}>
-                          <p className={`text-sm font-medium mb-2 ${isDarkMode ? 'text-blue-300' : 'text-blue-800'}`}>
-                            Payment Instructions:
+                        </button>
+                      
+                        <div className="text-center">
+                          <div className="w-16 h-16 bg-gradient-to-r from-green-500 to-blue-500 rounded-full flex items-center justify-center mx-auto mb-4">
+                            <svg className="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                            </svg>
+                          </div>
+                      
+                          <h3 className="text-xl font-bold mb-2">Scan to Pay</h3>
+                          <p className={`text-sm mb-6 ${isDarkMode ? 'text-gray-300' : 'text-gray-600'}`}>
+                            Amount: ₹{(selectedAmount || customAmount).toLocaleString()}
                           </p>
-                          <ul className={`text-xs space-y-1 ${isDarkMode ? 'text-gray-300' : 'text-gray-600'}`}>
-                            <li>• Open your UPI app (Google Pay, PhonePe, Paytm, etc.)</li>
-                            <li>• Scan the QR code above</li>
-                            <li>• Verify the amount: ₹{(selectedAmount || customAmount).toLocaleString()}</li>
-                            <li>• Complete the payment</li>
-                            <li>• Payment will be reflected in your account within 24 hours</li>
-                          </ul>
-                        </div>
+                      
+                          {/* QR Code Display - Centered Container */}
+                          <div className="flex justify-center mb-6">
+                            <div className={`relative w-72 h-72 border-4 rounded-lg flex items-center justify-center ${
+                              isDarkMode ? 'border-gray-600 bg-gray-700' : 'border-gray-200 bg-gray-50'
+                            }`}>
+                              {qrData?.upi_string ? (
+                                <div className="text-center p-4">
+                                  {/* QR Code using external service */}
+                                  <img
+                                    src={`https://api.qrserver.com/v1/create-qr-code/?size=300x300&data=${encodeURIComponent(qrData.upi_string)}`}
+                                    alt="Payment QR Code"
+                                    className="w-64 h-64 mx-auto rounded-lg"
+                                  />
+                                  <p className={`text-sm font-medium mt-2 ${isDarkMode ? 'text-gray-300' : 'text-gray-600'}`}>
+                                    Scan QR Code
+                                  </p>
+                                  <p className={`text-xs ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}>
+                                    {qrData.merchant_name}
+                                  </p>
+                                </div>
+                              ) : (
+                                <div className="text-center">
+                                  <div className="w-32 h-32 bg-white border-2 border-gray-300 rounded-lg mx-auto mb-4 flex items-center justify-center">
+                                    <svg className="w-16 h-16 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v1m6 11h2m-6 0h-2v4m0-11v3m0 0h.01M12 12h4.01M12 15h4.01M12 21h4.01M12 12v.01M12 15v.01M12 18v.01M12 21v.01M8 12h.01M8 15h.01M8 18h.01M8 21h.01M4 12h.01M4 15h.01M4 18h.01M4 21h.01" />
+                                    </svg>
+                                  </div>
+                                  <p className={`text-sm font-medium ${isDarkMode ? 'text-gray-300' : 'text-gray-600'}`}>
+                                    Generating QR Code...
+                                  </p>
+                                </div>
+                              )}
 
-                        <div className="space-y-3">
-                          <button
-                            onClick={() => {
-                              setShowQRCode(false);
-                              showNotificationMessage('Payment initiated successfully! Please complete the payment in your UPI app.', 'success');
-                            }}
-                            className="w-full bg-gradient-to-r from-green-500 to-blue-500 text-white py-3 px-6 rounded-lg font-semibold hover:from-green-600 hover:to-blue-600 transition-all duration-200"
-                          >
-                            I've Completed the Payment
-                          </button>
-
-                          <button
-                            onClick={() => setShowQRCode(false)}
-                            className={`w-full py-3 px-6 rounded-lg font-semibold transition-all duration-200 ${
-                              isDarkMode
-                                ? 'bg-gray-600 text-gray-300 hover:bg-gray-500'
-                                : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
-                            }`}
-                          >
-                            Cancel
-                          </button>
+                              {/* Cancel Button Overlay - Only shown when QR is generated */}
+                              {qrData?.upi_string && (
+                                <button
+                                  onClick={() => {
+                                    setShowQRCode(false);
+                                    setQrData(null);
+                                    showNotificationMessage('Payment cancelled. You can generate a new QR code.', 'info');
+                                  }}
+                                  className="absolute -top-3 -right-3 bg-red-500 text-white rounded-full p-2 hover:bg-red-600 transition-colors"
+                                  title="Cancel Payment"
+                                >
+                                  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                                  </svg>
+                                </button>
+                              )}
+                            </div>
+                          </div>
+                          
+                          <div className={`p-4 rounded-lg mb-4 ${isDarkMode ? 'bg-gray-700' : 'bg-blue-50'}`}>
+                            <p className={`text-sm font-medium mb-2 ${isDarkMode ? 'text-blue-300' : 'text-blue-800'}`}>
+                              Payment Instructions:
+                            </p>
+                            <ul className={`text-xs space-y-1 ${isDarkMode ? 'text-gray-300' : 'text-gray-600'}`}>
+                              <li>• Open your UPI app (Google Pay, PhonePe, Paytm, etc.)</li>
+                              <li>• Scan the QR code above</li>
+                              <li>• Verify the amount: ₹{(selectedAmount || customAmount).toLocaleString()}</li>
+                              <li>• Complete the payment</li>
+                              <li>• Payment will be reflected in your account within 24 hours</li>
+                            </ul>
+                          </div>
+                          
+                          <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                            <button
+                              onClick={() => {
+                                setShowQRCode(false);
+                                setQrData(null);
+                                showNotificationMessage('Payment initiated successfully! Please complete the payment in your UPI app.', 'success');
+                              }}
+                              className="w-full bg-gradient-to-r from-green-500 to-blue-500 text-white py-3 px-6 rounded-lg font-semibold hover:from-green-600 hover:to-blue-600 transition-all duration-200"
+                            >
+                              I've Completed the Payment
+                            </button>
+                          
+                            <button
+                              onClick={() => {
+                                setShowQRCode(false);
+                                setQrData(null);
+                                showNotificationMessage('Payment cancelled. You can generate a new QR code.', 'info');
+                              }}
+                              className={`w-full py-3 px-6 rounded-lg font-semibold transition-all duration-200 ${
+                                isDarkMode
+                                  ? 'bg-gray-600 text-gray-300 hover:bg-gray-500'
+                                  : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
+                              }`}
+                            >
+                              Cancel Payment
+                            </button>
+                          </div>
                         </div>
                       </div>
                     </div>
-                  </div>
                 )}
               </div>
             </div>
