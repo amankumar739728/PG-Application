@@ -29,6 +29,7 @@ from jwt import ExpiredSignatureError, InvalidTokenError
 import logging
 from fastapi.middleware.cors import CORSMiddleware
 from threading import Thread
+import os
 
 # Configure logging
 logging.basicConfig(level=logging.INFO)
@@ -705,6 +706,41 @@ def send_monthly_rent_reminders_endpoint(
     except Exception as e:
         import logging
         logging.error(f"Error sending monthly rent reminders: {e}")
+        raise HTTPException(status_code=500, detail="Internal server error")
+
+
+@app.post("/payments/generate-qr", response_model=dict, tags=["Payment"])
+def generate_payment_qr_endpoint(
+    amount: int = Query(..., gt=0, description="Payment amount in rupees"),
+    purpose: str = Query(..., description="Payment purpose (rent/security)"),
+    user: dict = Depends(get_current_user)
+):
+    """Generate UPI QR code data for payment"""
+    try:
+        # UPI ID - should be configured in environment variables
+        upi_id = os.environ.get("MERCHANT_UPI_ID", "merchant@upi")  # Replace with actual UPI ID
+        merchant_name = os.environ.get("MERCHANT_NAME", "PG Management")
+
+        # Generate UPI payment string
+        upi_string = f"upi://pay?pa={upi_id}&pn={merchant_name}&am={amount}&cu=INR&tn=PG-{purpose.title()}-Payment"
+
+        # For QR code generation, you can use a service like:
+        # - qrcode library (server-side generation)
+        # - Google Charts API (external service)
+        # - Or return the UPI string for client-side QR generation
+
+        # For now, return the UPI string that can be used to generate QR code on frontend
+        return {
+            "upi_string": upi_string,
+            "amount": amount,
+            "purpose": purpose,
+            "merchant_name": merchant_name,
+            "upi_id": upi_id,
+            "currency": "INR"
+        }
+    except Exception as e:
+        import logging
+        logging.error(f"Error generating payment QR: {e}")
         raise HTTPException(status_code=500, detail="Internal server error")
 
 
