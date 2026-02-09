@@ -49,6 +49,12 @@ const Payments = () => {
   const [currentUser, setCurrentUser] = useState(null);
   const [activeTab, setActiveTab] = useState('all');
 
+  // Pay Now states
+  const [selectedAmount, setSelectedAmount] = useState('');
+  const [customAmount, setCustomAmount] = useState('');
+  const [paymentPurpose, setPaymentPurpose] = useState('rent');
+  const [showQRCode, setShowQRCode] = useState(false);
+
   // Filters
   const [filters, setFilters] = useState({
     month: '',
@@ -544,6 +550,7 @@ const Payments = () => {
               { id: 'all', label: 'All Payments', icon: '💰' },
               { id: 'overdue', label: 'Overdue', icon: '⚠️' },
               { id: 'pending', label: 'Monthly Pending', icon: '⏰' },
+              { id: 'paynow', label: 'Pay Now', icon: '💳' },
               { id: 'analytics', label: 'Analytics', icon: '📊' }
             ].map(tab => (
               <button
@@ -860,6 +867,269 @@ const Payments = () => {
             </div>
           )}
           {activeTab === 'pending' && pendingPayments.map(renderPendingCard)}
+
+          {/* Pay Now Tab */}
+          {activeTab === 'paynow' && (
+            <div className="col-span-full">
+              <div className={`max-w-2xl mx-auto ${isDarkMode ? 'bg-gray-800' : 'bg-white'} rounded-lg shadow-lg p-8`}>
+                <div className="text-center mb-8">
+                  <div className="w-20 h-20 bg-gradient-to-r from-blue-500 to-purple-600 rounded-full flex items-center justify-center mx-auto mb-4">
+                    <svg className="w-10 h-10 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 9V7a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2m2 4h10a2 2 0 002-2v-6a2 2 0 00-2-2H9a2 2 0 00-2 2v6a2 2 0 002 2z" />
+                    </svg>
+                  </div>
+                  <h2 className="text-2xl font-bold mb-2">Make a Payment</h2>
+                  <p className={`text-sm ${isDarkMode ? 'text-gray-300' : 'text-gray-600'}`}>
+                    Choose your payment amount and scan the QR code to pay
+                  </p>
+                </div>
+
+                {/* Payment Purpose Selection */}
+                <div className="mb-6">
+                  <label className={`block text-sm font-medium mb-3 ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}>
+                    Payment Purpose
+                  </label>
+                  <div className="grid grid-cols-2 gap-3">
+                    <button
+                      onClick={() => setPaymentPurpose('rent')}
+                      className={`p-4 rounded-lg border-2 transition-all duration-200 ${
+                        paymentPurpose === 'rent'
+                          ? 'border-blue-500 bg-blue-50 text-blue-700'
+                          : `border-gray-200 ${isDarkMode ? 'bg-gray-700 text-gray-300 hover:bg-gray-600' : 'bg-gray-50 text-gray-700 hover:bg-gray-100'}`
+                      }`}
+                    >
+                      <div className="text-center">
+                        <div className="text-2xl mb-2">🏠</div>
+                        <div className="font-semibold">Monthly Rent</div>
+                        <div className="text-sm opacity-75">Regular payment</div>
+                      </div>
+                    </button>
+                    <button
+                      onClick={() => setPaymentPurpose('security')}
+                      className={`p-4 rounded-lg border-2 transition-all duration-200 ${
+                        paymentPurpose === 'security'
+                          ? 'border-purple-500 bg-purple-50 text-purple-700'
+                          : `border-gray-200 ${isDarkMode ? 'bg-gray-700 text-gray-300 hover:bg-gray-600' : 'bg-gray-50 text-gray-700 hover:bg-gray-100'}`
+                      }`}
+                    >
+                      <div className="text-center">
+                        <div className="text-2xl mb-2">🛡️</div>
+                        <div className="font-semibold">Security Deposit</div>
+                        <div className="text-sm opacity-75">One-time payment</div>
+                      </div>
+                    </button>
+                  </div>
+                </div>
+
+                {/* Amount Selection */}
+                <div className="mb-6">
+                  <label className={`block text-sm font-medium mb-3 ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}>
+                    Select Amount
+                  </label>
+                  <div className="grid grid-cols-2 gap-3 mb-4">
+                    {paymentPurpose === 'rent' ? (
+                      <>
+                        <button
+                          onClick={() => setSelectedAmount('10000')}
+                          className={`p-3 rounded-lg border transition-all duration-200 ${
+                            selectedAmount === '10000'
+                              ? 'border-blue-500 bg-blue-50 text-blue-700'
+                              : `border-gray-200 ${isDarkMode ? 'bg-gray-700 text-gray-300 hover:bg-gray-600' : 'bg-gray-50 text-gray-700 hover:bg-gray-100'}`
+                          }`}
+                        >
+                          ₹10,000
+                        </button>
+                        <button
+                          onClick={() => setSelectedAmount('8500')}
+                          className={`p-3 rounded-lg border transition-all duration-200 ${
+                            selectedAmount === '8500'
+                              ? 'border-blue-500 bg-blue-50 text-blue-700'
+                              : `border-gray-200 ${isDarkMode ? 'bg-gray-700 text-gray-300 hover:bg-gray-600' : 'bg-gray-50 text-gray-700 hover:bg-gray-100'}`
+                          }`}
+                        >
+                          ₹8,500
+                        </button>
+                        <button
+                          onClick={() => setSelectedAmount('6500')}
+                          className={`p-3 rounded-lg border transition-all duration-200 ${
+                            selectedAmount === '6500'
+                              ? 'border-blue-500 bg-blue-50 text-blue-700'
+                              : `border-gray-200 ${isDarkMode ? 'bg-gray-700 text-gray-300 hover:bg-gray-600' : 'bg-gray-50 text-gray-700 hover:bg-gray-100'}`
+                          }`}
+                        >
+                          ₹6,500
+                        </button>
+                        <button
+                          onClick={() => setSelectedAmount('15000')}
+                          className={`p-3 rounded-lg border transition-all duration-200 ${
+                            selectedAmount === '15000'
+                              ? 'border-blue-500 bg-blue-50 text-blue-700'
+                              : `border-gray-200 ${isDarkMode ? 'bg-gray-700 text-gray-300 hover:bg-gray-600' : 'bg-gray-50 text-gray-700 hover:bg-gray-100'}`
+                          }`}
+                        >
+                          ₹15,000
+                        </button>
+                      </>
+                    ) : (
+                      <>
+                        <button
+                          onClick={() => setSelectedAmount('12000')}
+                          className={`p-3 rounded-lg border transition-all duration-200 ${
+                            selectedAmount === '12000'
+                              ? 'border-purple-500 bg-purple-50 text-purple-700'
+                              : `border-gray-200 ${isDarkMode ? 'bg-gray-700 text-gray-300 hover:bg-gray-600' : 'bg-gray-50 text-gray-700 hover:bg-gray-100'}`
+                          }`}
+                        >
+                          ₹12,000
+                        </button>
+                        <button
+                          onClick={() => setSelectedAmount('24000')}
+                          className={`p-3 rounded-lg border transition-all duration-200 ${
+                            selectedAmount === '24000'
+                              ? 'border-purple-500 bg-purple-50 text-purple-700'
+                              : `border-gray-200 ${isDarkMode ? 'bg-gray-700 text-gray-300 hover:bg-gray-600' : 'bg-gray-50 text-gray-700 hover:bg-gray-100'}`
+                          }`}
+                        >
+                          ₹24,000
+                        </button>
+                        <button
+                          onClick={() => setSelectedAmount('36000')}
+                          className={`p-3 rounded-lg border transition-all duration-200 ${
+                            selectedAmount === '36000'
+                              ? 'border-purple-500 bg-purple-50 text-purple-700'
+                              : `border-gray-200 ${isDarkMode ? 'bg-gray-700 text-gray-300 hover:bg-gray-600' : 'bg-gray-50 text-gray-700 hover:bg-gray-100'}`
+                          }`}
+                        >
+                          ₹36,000
+                        </button>
+                        <button
+                          onClick={() => setSelectedAmount('48000')}
+                          className={`p-3 rounded-lg border transition-all duration-200 ${
+                            selectedAmount === '48000'
+                              ? 'border-purple-500 bg-purple-50 text-purple-700'
+                              : `border-gray-200 ${isDarkMode ? 'bg-gray-700 text-gray-300 hover:bg-gray-600' : 'bg-gray-50 text-gray-700 hover:bg-gray-100'}`
+                          }`}
+                        >
+                          ₹48,000
+                        </button>
+                      </>
+                    )}
+                  </div>
+
+                  {/* Custom Amount Input */}
+                  <div className="relative">
+                    <input
+                      type="number"
+                      placeholder="Or enter custom amount"
+                      value={customAmount}
+                      onChange={(e) => {
+                        setCustomAmount(e.target.value);
+                        setSelectedAmount('');
+                      }}
+                      className={`w-full p-3 border rounded-lg transition-all duration-200 ${
+                        isDarkMode
+                          ? 'bg-gray-700 border-gray-600 text-white placeholder-gray-400 focus:border-blue-500'
+                          : 'bg-white border-gray-300 focus:border-blue-500'
+                      }`}
+                    />
+                    <span className="absolute right-3 top-3 text-gray-500">₹</span>
+                  </div>
+                </div>
+
+                {/* Pay Now Button */}
+                <button
+                  onClick={() => {
+                    const amount = customAmount || selectedAmount;
+                    if (!amount) {
+                      showNotificationMessage('Please select or enter an amount', 'error');
+                      return;
+                    }
+                    setShowQRCode(true);
+                  }}
+                  disabled={!selectedAmount && !customAmount}
+                  className={`w-full py-4 px-6 rounded-lg font-semibold text-white transition-all duration-200 ${
+                    selectedAmount || customAmount
+                      ? 'bg-gradient-to-r from-blue-500 to-purple-600 hover:from-blue-600 hover:to-purple-700 transform hover:scale-105 shadow-lg'
+                      : 'bg-gray-400 cursor-not-allowed'
+                  }`}
+                >
+                  {selectedAmount || customAmount ? `Pay ₹${(selectedAmount || customAmount).toLocaleString()}` : 'Select Amount to Continue'}
+                </button>
+
+                {/* QR Code Modal */}
+                {showQRCode && (
+                  <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+                    <div className={`relative max-w-md w-full ${isDarkMode ? 'bg-gray-800' : 'bg-white'} rounded-2xl shadow-2xl p-6`}>
+                      {/* Close Button */}
+                      <button
+                        onClick={() => setShowQRCode(false)}
+                        className="absolute top-4 right-4 text-gray-400 hover:text-gray-600 transition-colors"
+                      >
+                        <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                        </svg>
+                      </button>
+
+                      <div className="text-center">
+                        <div className="w-16 h-16 bg-gradient-to-r from-green-500 to-blue-500 rounded-full flex items-center justify-center mx-auto mb-4">
+                          <svg className="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                          </svg>
+                        </div>
+
+                        <h3 className="text-xl font-bold mb-2">Payment Ready</h3>
+                        <p className={`text-sm mb-6 ${isDarkMode ? 'text-gray-300' : 'text-gray-600'}`}>
+                          Amount: ₹{(selectedAmount || customAmount).toLocaleString()}
+                        </p>
+
+                        {/* QR Code Placeholder */}
+                        <div className={`w-64 h-64 mx-auto mb-6 border-4 rounded-lg flex items-center justify-center ${
+                          isDarkMode ? 'border-gray-600 bg-gray-700' : 'border-gray-200 bg-gray-50'
+                        }`}>
+                          <div className="text-center">
+                            <div className="w-32 h-32 bg-white border-2 border-gray-300 rounded-lg mx-auto mb-4 flex items-center justify-center">
+                              <svg className="w-16 h-16 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v1m6 11h2m-6 0h-2v4m0-11v3m0 0h.01M12 12h4.01M12 15h4.01M12 21h4.01M12 12v.01M12 15v.01M12 18v.01M12 21v.01M8 12h.01M8 15h.01M8 18h.01M8 21h.01M4 12h.01M4 15h.01M4 18h.01M4 21h.01" />
+                              </svg>
+                            </div>
+                            <p className={`text-sm font-medium ${isDarkMode ? 'text-gray-300' : 'text-gray-600'}`}>
+                              QR Code
+                            </p>
+                            <p className={`text-xs ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}>
+                              Scan to Pay
+                            </p>
+                          </div>
+                        </div>
+
+                        <div className={`p-4 rounded-lg mb-4 ${isDarkMode ? 'bg-gray-700' : 'bg-blue-50'}`}>
+                          <p className={`text-sm font-medium mb-2 ${isDarkMode ? 'text-blue-300' : 'text-blue-800'}`}>
+                            Payment Instructions:
+                          </p>
+                          <ul className={`text-xs space-y-1 ${isDarkMode ? 'text-gray-300' : 'text-gray-600'}`}>
+                            <li>• Open your UPI app (Google Pay, PhonePe, Paytm, etc.)</li>
+                            <li>• Scan the QR code above</li>
+                            <li>• Verify the amount: ₹{(selectedAmount || customAmount).toLocaleString()}</li>
+                            <li>• Complete the payment</li>
+                            <li>• Payment will be reflected in your account within 24 hours</li>
+                          </ul>
+                        </div>
+
+                        <button
+                          onClick={() => {
+                            setShowQRCode(false);
+                            showNotificationMessage('Payment initiated successfully! Please complete the payment in your UPI app.', 'success');
+                          }}
+                          className="w-full bg-gradient-to-r from-green-500 to-blue-500 text-white py-3 px-6 rounded-lg font-semibold hover:from-green-600 hover:to-blue-600 transition-all duration-200"
+                        >
+                          I've Completed the Payment
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+                )}
+              </div>
+            </div>
+          )}
         </div>
 
         {/* Interactive Analytics Charts */}
