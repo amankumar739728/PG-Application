@@ -54,6 +54,7 @@ const Payments = () => {
   const [customAmount, setCustomAmount] = useState('');
   const [paymentPurpose, setPaymentPurpose] = useState('rent');
   const [showQRCode, setShowQRCode] = useState(false);
+  const [qrData, setQrData] = useState(null);
 
   // Filters
   const [filters, setFilters] = useState({
@@ -1038,13 +1039,22 @@ const Payments = () => {
 
                 {/* Pay Now Button */}
                 <button
-                  onClick={() => {
+                  onClick={async () => {
                     const amount = customAmount || selectedAmount;
                     if (!amount) {
                       showNotificationMessage('Please select or enter an amount', 'error');
                       return;
                     }
-                    setShowQRCode(true);
+
+                    try {
+                      // Generate QR code data from backend
+                      const qrResponse = await roomService.generatePaymentQR(amount, paymentPurpose);
+                      setQrData(qrResponse);
+                      setShowQRCode(true);
+                    } catch (error) {
+                      console.error('Error generating QR code:', error);
+                      showNotificationMessage('Failed to generate payment QR code', 'error');
+                    }
                   }}
                   disabled={!selectedAmount && !customAmount}
                   className={`w-full py-4 px-6 rounded-lg font-semibold text-white transition-all duration-200 ${
@@ -1082,24 +1092,38 @@ const Payments = () => {
                           Amount: ₹{(selectedAmount || customAmount).toLocaleString()}
                         </p>
 
-                        {/* QR Code Placeholder */}
+                        {/* QR Code Display */}
                         <div className={`w-64 h-64 mx-auto mb-6 border-4 rounded-lg flex items-center justify-center ${
                           isDarkMode ? 'border-gray-600 bg-gray-700' : 'border-gray-200 bg-gray-50'
                         }`}>
-                          <div className="text-center">
-                            <div className="w-32 h-32 bg-white border-2 border-gray-300 rounded-lg mx-auto mb-4 flex items-center justify-center">
-                              <svg className="w-16 h-16 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v1m6 11h2m-6 0h-2v4m0-11v3m0 0h.01M12 12h4.01M12 15h4.01M12 21h4.01M12 12v.01M12 15v.01M12 18v.01M12 21v.01M8 12h.01M8 15h.01M8 18h.01M8 21h.01M4 12h.01M4 15h.01M4 18h.01M4 21h.01" />
-                              </svg>
+                          {qrData?.upi_string ? (
+                            <div className="text-center">
+                              {/* QR Code using external service or library */}
+                              <img
+                                src={`https://api.qrserver.com/v1/create-qr-code/?size=256x256&data=${encodeURIComponent(qrData.upi_string)}`}
+                                alt="Payment QR Code"
+                                className="w-48 h-48 mx-auto mb-4 rounded-lg"
+                              />
+                              <p className={`text-sm font-medium ${isDarkMode ? 'text-gray-300' : 'text-gray-600'}`}>
+                                Scan QR Code
+                              </p>
+                              <p className={`text-xs ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}>
+                                {qrData.merchant_name}
+                              </p>
                             </div>
-                            <p className={`text-sm font-medium ${isDarkMode ? 'text-gray-300' : 'text-gray-600'}`}>
-                              QR Code
-                            </p>
-                            <p className={`text-xs ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}>
-                              Scan to Pay
-                            </p>
-                          </div>
-                        </div>
+                          ) : (
+                            <div className="text-center">
+                              <div className="w-32 h-32 bg-white border-2 border-gray-300 rounded-lg mx-auto mb-4 flex items-center justify-center">
+                                <svg className="w-16 h-16 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v1m6 11h2m-6 0h-2v4m0-11v3m0 0h.01M12 12h4.01M12 15h4.01M12 21h4.01M12 12v.01M12 15v.01M12 18v.01M12 21v.01M8 12h.01M8 15h.01M8 18h.01M8 21h.01M4 12h.01M4 15h.01M4 18h.01M4 21h.01" />
+                                </svg>
+                              </div>
+                              <p className={`text-sm font-medium ${isDarkMode ? 'text-gray-300' : 'text-gray-600'}`}>
+                                Generating QR Code...
+                              </p>
+                            </div>
+                          )}
+                       </div>
 
                         <div className={`p-4 rounded-lg mb-4 ${isDarkMode ? 'bg-gray-700' : 'bg-blue-50'}`}>
                           <p className={`text-sm font-medium mb-2 ${isDarkMode ? 'text-blue-300' : 'text-blue-800'}`}>
