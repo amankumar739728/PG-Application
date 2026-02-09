@@ -208,6 +208,13 @@ const roomService = {
   getRecentActivities: async (limit = 10) => {
     const response = await roomAxiosInstance.get('/activities/recent', { params: { limit } });
     return response.data;
+  },
+
+  generatePaymentQR: async (amount, purpose) => {
+    const response = await roomAxiosInstance.post('/payments/generate-qr', null, {
+      params: { amount, purpose }
+    });
+    return response.data;
   }
 };
 
