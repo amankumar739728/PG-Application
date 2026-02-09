@@ -1069,7 +1069,7 @@ const Payments = () => {
                 {/* QR Code Modal */}
                 {showQRCode && (
                   <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-                    <div className={`relative max-w-md w-full ${isDarkMode ? 'bg-gray-800' : 'bg-white'} rounded-2xl shadow-2xl p-6`}>
+                    <div className={`relative max-w-md w-full ${isDarkMode ? 'bg-gray-800' : 'bg-white'} rounded-2xl shadow-2xl p-6 max-h-[90vh] overflow-y-auto`}>
                       {/* Close Button */}
                       <button
                         onClick={() => setShowQRCode(false)}
@@ -1087,7 +1087,7 @@ const Payments = () => {
                           </svg>
                         </div>
 
-                        <h3 className="text-xl font-bold mb-2">Payment Ready</h3>
+                        <h3 className="text-xl font-bold mb-2">Scan to Pay</h3>
                         <p className={`text-sm mb-6 ${isDarkMode ? 'text-gray-300' : 'text-gray-600'}`}>
                           Amount: ₹{(selectedAmount || customAmount).toLocaleString()}
                         </p>
@@ -1138,15 +1138,28 @@ const Payments = () => {
                           </ul>
                         </div>
 
-                        <button
-                          onClick={() => {
-                            setShowQRCode(false);
-                            showNotificationMessage('Payment initiated successfully! Please complete the payment in your UPI app.', 'success');
-                          }}
-                          className="w-full bg-gradient-to-r from-green-500 to-blue-500 text-white py-3 px-6 rounded-lg font-semibold hover:from-green-600 hover:to-blue-600 transition-all duration-200"
-                        >
-                          I've Completed the Payment
-                        </button>
+                        <div className="space-y-3">
+                          <button
+                            onClick={() => {
+                              setShowQRCode(false);
+                              showNotificationMessage('Payment initiated successfully! Please complete the payment in your UPI app.', 'success');
+                            }}
+                            className="w-full bg-gradient-to-r from-green-500 to-blue-500 text-white py-3 px-6 rounded-lg font-semibold hover:from-green-600 hover:to-blue-600 transition-all duration-200"
+                          >
+                            I've Completed the Payment
+                          </button>
+
+                          <button
+                            onClick={() => setShowQRCode(false)}
+                            className={`w-full py-3 px-6 rounded-lg font-semibold transition-all duration-200 ${
+                              isDarkMode
+                                ? 'bg-gray-600 text-gray-300 hover:bg-gray-500'
+                                : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
+                            }`}
+                          >
+                            Cancel
+                          </button>
+                        </div>
                       </div>
                     </div>
                   </div>
