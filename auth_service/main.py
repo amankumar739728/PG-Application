@@ -101,6 +101,8 @@ async def validate_authenticity(request: Request, call_next):
         return await call_next(request)
     if request.url.path.startswith("/verify-email"):  # Skip token authentication for /verify-email as well
         return await call_next(request)
+    if request.url.path.startswith("/resend-verification"):  # Skip token authentication for /resend-verification as well
+        return await call_next(request)
 
     authorization: str = request.headers.get('Authorization', '')
     if not authorization:
