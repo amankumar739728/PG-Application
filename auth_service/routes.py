@@ -5,7 +5,6 @@ from typing import List
 from fastapi import APIRouter, Depends, HTTPException, status, Request,BackgroundTasks
 from slowapi import Limiter
 from slowapi.util import get_remote_address
-from email_utils import send_email
 from token_utils import generate_token, verify_token
 from fastapi.security import OAuth2PasswordBearer, OAuth2PasswordRequestForm
 from pymongo import MongoClient
@@ -21,7 +20,7 @@ from pydantic import BaseModel
 from fastapi.security import HTTPBearer
 from dotenv import load_dotenv
 from datetime import datetime, timedelta
-from email_utils import send_reset_email,send_verification_email
+from email_utils import send_reset_email, send_verification_email
 
 
 load_dotenv()
@@ -451,7 +450,7 @@ async def forgot_password(request: Request, forgot_request: ForgotPasswordReques
 
     return {
         "message": f"Password reset link sent to your email: {user.email}",
-        "reset_link": f"http://localhost:3000/reset-password?token={reset_token}"
+        "reset_link": f"https://pg-application-frontend.onrender.com/reset-password?token={reset_token}"
     }
 
 
