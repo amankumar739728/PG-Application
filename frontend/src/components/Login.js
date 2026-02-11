@@ -146,16 +146,17 @@ const Login = () => {
 
   const handleResendVerification = async (e) => {
     e.preventDefault();
-    setError('');
     setResendLoading(true);
 
     try {
-      const response = await authService.resendVerification(resendEmail || username);
+      const response = await authService.resendVerification(resendEmail);
       setNotification('Verification email sent successfully! Please check your email.');
       setShowResendForm(false);
       setResendEmail('');
+      setError('');
     } catch (err) {
       setError(err.response?.data?.detail || 'Failed to resend verification email');
+      setShowResendForm(false);
     } finally {
       setResendLoading(false);
     }
@@ -343,7 +344,63 @@ const Login = () => {
           )}
 
           <form className="space-y-6" onSubmit={handleSubmit}>
-            {error && (
+            {/* Error or Resend Form */}
+            {showResendForm ? (
+              <div className={`border px-4 py-3 rounded slide-in-up ${
+                isDarkMode
+                  ? 'bg-blue-900 border-blue-700 text-blue-200'
+                  : 'bg-blue-50 border-blue-200 text-blue-700'
+              }`}>
+                <div className="flex items-start justify-between mb-3">
+                  <h3 className="text-sm font-medium">Resend Verification Email</h3>
+                  <button
+                    onClick={() => {
+                      setShowResendForm(false);
+                      setError('Email not verified. Please check your email for the verification link.');
+                    }}
+                    className="text-gray-400 hover:text-gray-600"
+                  >
+                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                    </svg>
+                  </button>
+                </div>
+                <form onSubmit={handleResendVerification} className="space-y-3">
+                  <div>
+                    <label htmlFor="resend-email" className="block text-sm font-medium">
+                      Email Address
+                    </label>
+                    <input
+                      id="resend-email"
+                      type="email"
+                      required
+                      value={resendEmail}
+                      onChange={(e) => setResendEmail(e.target.value)}
+                      placeholder="Enter your email"
+                      className={`mt-1 block w-full px-3 py-2 border rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 ${
+                        isDarkMode
+                          ? 'bg-gray-700 border-gray-600 text-white placeholder-gray-400'
+                          : 'border-gray-300'
+                      }`}
+                    />
+                  </div>
+                  <button
+                    type="submit"
+                    disabled={resendLoading}
+                    className="w-full flex justify-center py-2 px-4 border border-transparent text-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 disabled:opacity-50 transition-colors"
+                  >
+                    {resendLoading ? (
+                      <div className="flex items-center">
+                        <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
+                        Sending...
+                      </div>
+                    ) : (
+                      'Send Verification Email'
+                    )}
+                  </button>
+                </form>
+              </div>
+            ) : error ? (
               <div className={`border px-4 py-3 rounded slide-in-up ${
                 isDarkMode
                   ? 'bg-red-900 border-red-700 text-red-200'
@@ -373,7 +430,7 @@ const Login = () => {
                   </button>
                 </div>
               </div>
-            )}
+            ) : null}
 
             <div className="space-y-4">
               <div>
