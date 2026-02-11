@@ -2,6 +2,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import authService from '../api/authService';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { useTheme } from '../contexts/ThemeContext';
+import { useLoading } from '../contexts/LoadingContext';
 
 const Login = () => {
   const [username, setUsername] = useState('');
@@ -554,10 +555,10 @@ const Login = () => {
               <button
                 type="submit"
                 onClick={(e) => e.stopPropagation()}
-                disabled={loading}
+                disabled={isLoading}
                 className="group relative w-full flex justify-center py-3 px-4 border border-transparent text-sm font-medium rounded-lg text-white bg-indigo-600 hover:bg-indigo-700 hover:shadow-lg hover:scale-105 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 disabled:opacity-50 disabled:hover:scale-100 transition-all duration-200"
               >
-                {loading ? (
+                {isLoading ? (
                   <div className="flex items-center">
                     <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
                     Signing in...
