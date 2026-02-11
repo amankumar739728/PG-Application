@@ -20,7 +20,9 @@ const Login = () => {
   const [resendEmail, setResendEmail] = useState(''); // Email for resend verification
   const [resendLoading, setResendLoading] = useState(false); // Loading state for resend
   const navigate = useNavigate();
+  const location = useLocation();
   const { isDarkMode, toggleTheme } = useTheme();
+  const { isLoading, startLoading, stopLoading } = useLoading();
   const canvasRef = useRef(null);
 
   useEffect(() => {
