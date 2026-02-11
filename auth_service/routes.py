@@ -116,6 +116,7 @@ def signup(request: Request, user: UserCreate):
     email_sent = send_verification_email(user.email, verification_token)
     if not email_sent:
         logging.error(f"Failed to send verification email to {user.email}")
+        raise HTTPException(status_code=500, detail="Failed to send verification email")
 
     logging.info(f"New User '{user.username}' signed up with email '{user.email}'")
     now = datetime.utcnow().strftime('%Y-%m-%d %H:%M:%S UTC')
