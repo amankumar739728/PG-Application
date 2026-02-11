@@ -113,8 +113,12 @@ def send_reset_email(email: str, token: str):
 
         sg = SendGridAPIClient(SENDGRID_API_KEY)
         response = sg.send(message)
-        logger.info(f"Sent password reset email to {email}")
-        return True
+        if response.status_code == 202:
+            logger.info(f"Sent password reset email to {email}")
+            return True
+        else:
+            logger.error(f"Failed to send password reset email to {email}: SendGrid status {response.status_code}")
+            return False
     except Exception as e:
         logger.error(f"Error sending password reset email to {email}: {e}")
         return False
@@ -207,8 +211,12 @@ def send_verification_email(email: str, token: str):
 
         sg = SendGridAPIClient(SENDGRID_API_KEY)
         response = sg.send(message)
-        logger.info(f"Sent verification email to {email}")
-        return True
+        if response.status_code == 202:
+            logger.info(f"Sent verification email to {email}")
+            return True
+        else:
+            logger.error(f"Failed to send verification email to {email}: SendGrid status {response.status_code}")
+            return False
     except Exception as e:
         logger.error(f"Error sending verification email to {email}: {e}")
         return False
