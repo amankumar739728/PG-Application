@@ -64,6 +64,16 @@ const authService = {
   forgotPassword: async (emailData) => {
     const response = await axiosInstance.post('/forgot-password', emailData);
     return response.data;
+  },
+
+  verifyEmail: async (token) => {
+    const response = await axiosInstance.post('/verify-email', { token });
+    return response.data;
+  },
+
+  resendVerification: async (email) => {
+    const response = await axiosInstance.post('/resend-verification', { email });
+    return response.data;
   }
 };
 
