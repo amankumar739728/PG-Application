@@ -9,7 +9,7 @@ const Login = () => {
   const [showPassword, setShowPassword] = useState(false);
   const [rememberMe, setRememberMe] = useState(false);
   const [error, setError] = useState('');
-  const [loading, setLoading] = useState(false);
+
   const [usernameValid, setUsernameValid] = useState(null);
   const [passwordValid, setPasswordValid] = useState(null);
   const [activeSide, setActiveSide] = useState('initial'); // 'initial', 'left', or 'right'
@@ -105,7 +105,7 @@ const Login = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError('');
-    setLoading(true);
+    startLoading();
 
     try {
       const response = await authService.login(username, password);
@@ -128,7 +128,7 @@ const Login = () => {
     } catch (err) {
       setError(err.response?.data?.detail || 'Login failed');
     } finally {
-      setLoading(false);
+      stopLoading();
     }
   };
 
