@@ -19,8 +19,8 @@ import GlobalLoadingSpinner from './components/GlobalLoadingSpinner';
 
 function App() {
   return (
-    <ThemeProvider>
-      <LoadingProvider>
+    <LoadingProvider>
+      <ThemeProvider>
         <GlobalLoadingSpinner />
         <Router>
           <Routes>
@@ -88,8 +88,8 @@ function App() {
             />
           </Routes>
         </Router>
-      </LoadingProvider>
-    </ThemeProvider>
+      </ThemeProvider>
+    </LoadingProvider>
   );
 }
 
