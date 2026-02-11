@@ -6,6 +6,7 @@ import Homepage from './components/Homepage';
 import Login from './components/Login';
 import Signup from './components/Signup';
 import ForgotPassword from './components/ForgotPassword';
+import ResetPassword from './components/ResetPassword';
 import VerifyEmail from './components/VerifyEmail';
 import Dashboard from './components/Dashboard';
 import Announcements from './components/Announcements';
@@ -28,6 +29,7 @@ function App() {
             <Route path="/login" element={<Login />} />
             <Route path="/signup" element={<Signup />} />
             <Route path="/forgot-password" element={<ForgotPassword />} />
+            <Route path="/reset-password" element={<ResetPassword />} />
             <Route path="/verify-email" element={<VerifyEmail />} />
             <Route
               path="/dashboard"
