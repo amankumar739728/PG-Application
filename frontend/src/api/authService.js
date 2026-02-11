@@ -66,6 +66,11 @@ const authService = {
     return response.data;
   },
 
+  resetPassword: async (resetData) => {
+    const response = await axiosInstance.post('/reset-password', resetData);
+    return response.data;
+  },
+
   verifyEmail: async (token) => {
     const response = await axiosInstance.post('/verify-email', { token });
     return response.data;
