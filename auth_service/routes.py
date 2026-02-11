@@ -2,7 +2,8 @@
 from fastapi import Body
 from typing import List
 
-from fastapi import APIRouter, Depends, HTTPException, status, Request,BackgroundTasks
+# from fastapi import APIRouter, Depends, HTTPException, status, Request, BackgroundTasks
+from fastapi import APIRouter, Depends, HTTPException, status, Request
 from slowapi import Limiter
 from slowapi.util import get_remote_address
 from token_utils import generate_token, verify_token
@@ -101,19 +102,21 @@ ensure_blacklist_ttl_index()
 
 @limiter.limit("5/minute")
 @router.post("/signup", response_model=SignupResponse,tags=["Authentication"])
-def signup(request: Request, user: UserCreate, background_tasks: BackgroundTasks):
+def signup(request: Request, user: UserCreate):
     from datetime import datetime, timedelta
     created_user = create_user(user)
-    
+
     # Generate email verification token
     verification_token = generate_token(
-        data={"sub": created_user["username"]}, 
+        data={"sub": created_user["username"]},
         expires_delta=timedelta(minutes=30)
     )
-    
-    # Send verification email in the background
-    background_tasks.add_task(send_verification_email, user.email, verification_token)
-    
+
+    # Send verification email synchronously
+    email_sent = send_verification_email(user.email, verification_token)
+    if not email_sent:
+        logging.error(f"Failed to send verification email to {user.email}")
+
     logging.info(f"New User '{user.username}' signed up with email '{user.email}'")
     now = datetime.utcnow().strftime('%Y-%m-%d %H:%M:%S UTC')
     return {"message": f"User {created_user['username']} with role {created_user['role']} created successfully on {now}. Please check your email to verify your account."}
@@ -424,7 +427,7 @@ class ForgotPasswordRequest(BaseModel):
 
 @limiter.limit("5/minute")
 @router.post("/forgot-password", tags=["Authentication"])
-async def forgot_password(request: Request, forgot_request: ForgotPasswordRequest, background_tasks: BackgroundTasks):
+def forgot_password(request: Request, forgot_request: ForgotPasswordRequest):
     """Step 1: User requests a password reset."""
     user = get_user(forgot_request.email)
     if not user:
@@ -432,7 +435,7 @@ async def forgot_password(request: Request, forgot_request: ForgotPasswordReques
 
     # Generate a reset token
     reset_token = secrets.token_urlsafe(32)
-    
+
     # Create ResetToken object and convert to dictionary
     reset_token_obj = ResetToken(
         email=user.email,
@@ -440,12 +443,16 @@ async def forgot_password(request: Request, forgot_request: ForgotPasswordReques
         expires_at=datetime.utcnow() + timedelta(minutes=30)
     )
     reset_token_dict = reset_token_obj.dict()
-    
+
     # Store token in MongoDB with expiration time (e.g., 1 hour)
     db["reset_tokens"].insert_one(reset_token_dict)
 
-    # Send reset email in the background
-    background_tasks.add_task(send_reset_email, user.email, reset_token)
+    # Send reset email synchronously
+    email_sent = send_reset_email(user.email, reset_token)
+    if not email_sent:
+        logging.error(f"Failed to send reset email to {user.email}")
+        raise HTTPException(status_code=500, detail="Failed to send reset email")
+
     print(f"Generated Token for {forgot_request.email}: {reset_token}")
 
     return {
@@ -504,25 +511,28 @@ class ResendVerificationRequest(BaseModel):
 
 @limiter.limit("3/minute")
 @router.post("/resend-verification",tags=["Authentication"])
-async def resend_verification(request: ResendVerificationRequest, background_tasks: BackgroundTasks):
+def resend_verification(request: ResendVerificationRequest):
     """Resend email verification link."""
     user = get_user(request.email)
     if not user:
         raise HTTPException(status_code=404, detail="User not found")
-    
+
     # Check if email is already verified
     if user.email_verified:
         raise HTTPException(status_code=400, detail="Email is already verified")
-    
+
     # Generate new verification token
     verification_token = generate_token(
-        data={"sub": user.username}, 
+        data={"sub": user.username},
         expires_delta=timedelta(minutes=30)
     )
-    
-    # Send verification email in the background
-    background_tasks.add_task(send_verification_email, user.email, verification_token)
-    
+
+    # Send verification email synchronously
+    email_sent = send_verification_email(user.email, verification_token)
+    if not email_sent:
+        logging.error(f"Failed to send verification email to {user.email}")
+        raise HTTPException(status_code=500, detail="Failed to send verification email")
+
     logging.info(f"Resent verification email to '{user.email}'")
     return {"message": f"Verification email sent to {user.email}"}
 
