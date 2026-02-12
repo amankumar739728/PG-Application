@@ -4,6 +4,7 @@ import { useTheme } from '../contexts/ThemeContext';
 import announcementService from '../api/announcementService';
 import authService from '../api/authService';
 import UserInfo from './UserInfo';
+import UniversalNav from './UniversalNav';
 
 const Announcements = () => {
   const navigate = useNavigate();
@@ -262,6 +263,7 @@ const Announcements = () => {
       <div className="flex justify-between items-center mb-6">
         <h1 className={`text-xl font-bold text-white`}>Announcement Management</h1>
         <div className="flex gap-4 items-center">
+           <UniversalNav />
           {/* User Info Display */}
           {currentUser && (
             <div className={`flex items-center space-x-2 text-sm rounded-lg px-3 py-1 shadow-sm ${
