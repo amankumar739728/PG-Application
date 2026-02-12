@@ -9,6 +9,7 @@ load_dotenv()
 # SendGrid Configuration
 SENDGRID_API_KEY = os.environ.get("SENDGRID_API_KEY")
 FROM_EMAIL = os.environ.get("MAIL_FROM", "noreply@pgtracker.com")
+FRONTEND_URL = os.environ.get("FRONTEND_URL", "https://pg-application-frontend.onrender.com")
 
 logger = logging.getLogger(__name__)
 
@@ -20,7 +21,7 @@ def send_reset_email(email: str, token: str):
             logger.error("SendGrid API key not configured")
             return False
 
-        reset_link = f"https://pg-application-frontend.onrender.com/reset-password?token={token}"
+        reset_link = f"{FRONTEND_URL}/reset-password?token={token}"
 
         html_content = f"""
         <!DOCTYPE html>
@@ -130,7 +131,7 @@ def send_verification_email(email: str, token: str):
             logger.error("SendGrid API key not configured")
             return False
 
-        verification_link = f"https://pg-application-frontend.onrender.com/verify-email?token={token}"
+        verification_link = f"{FRONTEND_URL}/verify-email?token={token}"
 
         html_content = f"""
         <!DOCTYPE html>
