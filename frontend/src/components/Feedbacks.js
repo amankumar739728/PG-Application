@@ -4,6 +4,7 @@ import { useTheme } from '../contexts/ThemeContext';
 import feedbackService from '../api/feedbackService';
 import authService from '../api/authService';
 import UserInfo from './UserInfo';
+import UniversalNav from './UniversalNav';
 
 const Feedbacks = () => {
   const navigate = useNavigate();
@@ -279,6 +280,7 @@ const Feedbacks = () => {
       <div className="flex justify-between items-center mb-6">
         <h1 className={`text-3xl font-bold ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>Feedback Management</h1>
         <div className="flex gap-2 items-center">
+          <UniversalNav />
           {/* User Info Display */}
           {currentUser && (
             <div className={`flex items-center space-x-2 text-sm rounded-lg px-3 py-1 shadow-sm ${
