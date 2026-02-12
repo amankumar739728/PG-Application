@@ -147,10 +147,9 @@ const Login = () => {
     }
   };
 
-  const handleResendVerification = async (e) => {
-    e.preventDefault();
+  const handleResendVerification = async () => {
     
-    if (!resendEmail) {
+    if (!resendEmail.trim()) {
       setError('Please enter your email address');
       return;
     }
@@ -160,7 +159,7 @@ const Login = () => {
     setNotification('');
 
     try {
-      const response = await authService.resendVerification(resendEmail);
+      const response = await authService.resendVerification(resendEmail.trim());
       setNotification('Verification email sent successfully! Please check your email and spam folder.');
       setShowResendForm(false);
       setResendEmail('');
@@ -403,7 +402,7 @@ const Login = () => {
                     </svg>
                   </button>
                 </div>
-                <form onSubmit={handleResendVerification} className="space-y-3">
+                <div className="space-y-3">
                   <div>
                     <label htmlFor="resend-email" className="block text-sm font-medium">
                       Email Address
@@ -424,7 +423,8 @@ const Login = () => {
                     />
                   </div>
                   <button
-                    type="submit"
+                    type="button"
+                    onClick={handleResendVerification}
                     disabled={resendLoading}
                     className="w-full flex justify-center py-2 px-4 border border-transparent text-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 disabled:opacity-50 transition-colors"
                   >
@@ -437,7 +437,7 @@ const Login = () => {
                       'Send Verification Email'
                     )}
                   </button>
-                </form>
+                </div>
               </div>
             ) : error ? (
               <div className={`border px-4 py-3 rounded slide-in-up ${
