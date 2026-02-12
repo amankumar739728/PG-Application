@@ -4,6 +4,7 @@ import { useTheme } from '../contexts/ThemeContext';
 import menuService from '../api/menuService';
 import authService from '../api/authService';
 import UserInfo from './UserInfo';
+import UniversalNav from './UniversalNav';
 
 const Menu = () => {
   const navigate = useNavigate();
@@ -215,6 +216,7 @@ const Menu = () => {
       <div className="flex justify-between items-center mb-6">
         <h1 className="text-3xl font-bold">Menu Management</h1>
         <div className="flex gap-2 items-center">
+          <UniversalNav />
           {/* User Info Display */}
           {currentUser && (
             <div className={`flex items-center space-x-2 text-sm rounded-lg px-3 py-1 shadow-sm ${
