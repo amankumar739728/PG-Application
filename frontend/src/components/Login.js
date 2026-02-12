@@ -149,17 +149,50 @@ const Login = () => {
 
   const handleResendVerification = async (e) => {
     e.preventDefault();
+    
+    if (!resendEmail) {
+      setError('Please enter your email address');
+      return;
+    }
+
     setResendLoading(true);
+    setError('');
+    setNotification('');
 
     try {
       const response = await authService.resendVerification(resendEmail);
-      setNotification('Verification email sent successfully! Please check your email.');
+      setNotification('Verification email sent successfully! Please check your email and spam folder.');
       setShowResendForm(false);
       setResendEmail('');
+
+      // Clear any existing error
       setError('');
+
+      // Optional: Clear the form after successful send
+      setTimeout(() => {
+        setNotification('');
+      }, 5000);
     } catch (err) {
-      setError(err.response?.data?.detail || 'Failed to resend verification email');
-      setShowResendForm(false);
+      console.error('Resend verification error:', err);
+
+      // Handle specific error cases
+      if (err.response?.status === 404) {
+        setError('No account found with this email address. Please sign up first.');
+      } else if (err.response?.status === 400) {
+        if (err.response?.data?.detail?.includes('already verified')) {
+          setError('This email is already verified. You can login now.');
+          // Redirect to login after a delay
+          setTimeout(() => {
+            navigate('/login');
+          }, 2000);
+        } else {
+          setError(err.response?.data?.detail || 'Invalid request. Please try again.');
+        }
+      } else if (err.response?.status === 429) {
+        setError('Too many requests. Please wait a few minutes before trying again.');
+      } else {
+        setError(err.response?.data?.detail || 'Failed to send verification email. Please try again later.');
+      }
     } finally {
       setResendLoading(false);
     }
@@ -359,9 +392,11 @@ const Login = () => {
                   <button
                     onClick={() => {
                       setShowResendForm(false);
-                      setError('Email not verified. Please check your email for the verification link.');
+                      setResendEmail('');
+                      setError('');
                     }}
                     className="text-gray-400 hover:text-gray-600"
+                    type="button"
                   >
                     <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
@@ -379,12 +414,13 @@ const Login = () => {
                       required
                       value={resendEmail}
                       onChange={(e) => setResendEmail(e.target.value)}
-                      placeholder="Enter your email"
+                      placeholder="Enter your registered email"
                       className={`mt-1 block w-full px-3 py-2 border rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 ${
                         isDarkMode
                           ? 'bg-gray-700 border-gray-600 text-white placeholder-gray-400'
                           : 'border-gray-300'
                       }`}
+                      disabled={resendLoading}
                     />
                   </div>
                   <button
