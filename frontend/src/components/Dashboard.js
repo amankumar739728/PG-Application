@@ -5,6 +5,7 @@ import feedbackService from '../api/feedbackService';
 import menuService from '../api/menuService';
 import authService from '../api/authService';
 import UserInfo from './UserInfo';
+import UniversalNav from './UniversalNav';
 import { useTheme } from '../contexts/ThemeContext';
 
 const Dashboard = () => {
