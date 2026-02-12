@@ -26,13 +26,36 @@ const VerifyEmail = () => {
     try {
       const response = await authService.verifyEmail(token);
       setStatus('success');
-      setMessage('Email verified successfully! You can now log in.');
+      setMessage('Email verified successfully! Redirecting to login page...');
+
+      // Clear any existing tokens
+      localStorage.removeItem('access_token');
+      localStorage.removeItem('refresh_token');
+      localStorage.removeItem('rememberedUsername');
+      localStorage.removeItem('rememberedPassword');
+
+      // Redirect to login after 3 seconds
       setTimeout(() => {
-        navigate('/login');
+        navigate('/login', {
+          state: {
+            message: 'Email verified successfully! You can now log in.',
+            showResendForm: false
+          }
+        });
       }, 3000);
     } catch (error) {
+      console.error('Verification error:', error);
       setStatus('error');
-      setMessage(error.response?.data?.detail || 'Failed to verify email. The link may be expired or invalid.');
+
+      if (error.response?.status === 400) {
+        if (error.response?.data?.detail?.includes('expired')) {
+          setMessage('Verification link has expired. Please request a new verification email.');
+        } else {
+          setMessage(error.response?.data?.detail || 'Invalid verification link. Please request a new one.');
+        }
+      } else {
+        setMessage('Failed to verify email. Please try again or request a new verification link.');
+      }
     } finally {
       setLoading(false);
     }
