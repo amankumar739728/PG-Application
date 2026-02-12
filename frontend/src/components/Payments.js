@@ -4,6 +4,7 @@ import { useTheme } from '../contexts/ThemeContext';
 import roomService from '../api/roomService';
 import authService from '../api/authService';
 import UserInfo from './UserInfo';
+import UniversalNav from './UniversalNav';
 import {
   Chart as ChartJS,
   CategoryScale,
@@ -499,6 +500,7 @@ const Payments = () => {
       <div className="flex justify-between items-center mb-6">
         <h1 className={`text-3xl font-bold ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>Payment Management</h1>
         <div className="flex gap-2 items-center">
+          <UniversalNav />
           {/* User Info Display */}
           {currentUser && (
             <div className={`flex items-center space-x-2 text-sm rounded-lg px-3 py-1 shadow-sm ${
